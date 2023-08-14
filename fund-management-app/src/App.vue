@@ -1,22 +1,32 @@
 <template>
   <div style="height: 100vh">
-    <app-layout>
-      <router-view />
-      <!-- This is where the routed content will be displayed -->
-    </app-layout>
+    <div v-if="store.userName === ''"><LoginPage /></div>
+    <div v-else>
+      <app-layout>
+        <router-view />
+      </app-layout>
+    </div>
   </div>
 </template>
 
 <script>
 import { defineComponent } from "vue";
-import AppLayout from "./components/AppLayout.vue"; // Adjust the path accordingly
 import router from "./router";
+import AppLayout from "./components/AppLayout.vue";
+import LoginPage from "./views/LoginPage.vue";
+import { useStore } from "@/store/data-context";
 
 export default defineComponent({
   components: {
     AppLayout,
+    LoginPage,
   },
   router,
+  data() {
+    return {
+      store: useStore(),
+    };
+  },
 });
 </script>
 

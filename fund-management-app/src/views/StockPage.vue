@@ -1,38 +1,45 @@
 <template>
-  <div>
-    <div>
-      <div class="table-operations">
-        <h1>Stock List</h1>
-        <a-button v-show="isSorted" @click="clearAll">Clear sorters</a-button>
-      </div>
+  <a-card>
+    <div class="table-operations">
+      <h1>Stock List</h1>
+      <a-button v-show="isSorted" @click="clearAll">Clear sorters</a-button>
+    </div>
+    <div v-if="loading" class="loading">
+      <a-spin size="large" />
+    </div>
+    <div v-else>
       <div class="table-container">
         <a-table
           :columns="columns"
           :data-source="stocks"
           @change="handleChange"
+          :scroll="{ y: '65vh' }"
         />
       </div>
     </div>
-  </div>
+  </a-card>
 </template>
 
 <script>
-// import { apiService } from "@/services/fundAPI";
-import { AButton, ATable } from "ant-design-vue";
-import { computed, ref, h, onMounted } from "vue";
+import { computed, ref, h } from "vue";
 import { FallOutlined, RiseOutlined } from "@ant-design/icons-vue";
 import { useRouter } from "vue-router";
 import { apiService } from "@/services/apiService";
 
 export default {
-  components: {
-    AButton,
-    ATable,
-  },
   setup() {
     const sortedInfo = ref();
     const router = useRouter();
     const stocks = ref([]);
+    const loading = ref(true);
+    const fetchData = async () => {
+      loading.value = true;
+      await apiService.getAllStock().then((res) => {
+        stocks.value = res;
+        loading.value = false;
+      });
+    };
+    fetchData();
     const columns = computed(() => {
       const sorted = sortedInfo.value || {};
       return [
@@ -106,8 +113,8 @@ export default {
         },
         {
           title: "Revenue",
-          dataIndex: "Revenue",
-          key: "Revenue",
+          dataIndex: "revenue",
+          key: "revenue",
           customRender: ({ text }) => {
             return h("span", { fontWeight: "bold" }, `$  ${text}`);
           },
@@ -196,20 +203,13 @@ export default {
       sortedInfo.value = null;
     };
 
-    onMounted(async () => {
-      try {
-        stocks.value = await apiService.getAllStock();
-      } catch (error) {
-        console.log("Error fetching stocks:", error);
-      }
-    });
-
     return {
       stocks: stocks,
       columns,
       handleChange,
       clearAll,
       isSorted,
+      loading,
     };
   },
 };
@@ -222,8 +222,7 @@ export default {
   justify-content: space-between;
 }
 
-.table-container {
-  max-height: calc(100vh - 300px); /* Adjust the value as needed */
-  overflow-y: auto;
+.loading {
+  text-align: center;
 }
 </style>

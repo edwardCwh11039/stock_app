@@ -29,17 +29,15 @@
         }"
       >
         <a-input-search
-          placeholder="Search Stock"
-          v-model="searchQuery"
-          @search="handleSearch"
+          placeholder="Search by name"
+          v-model:value="searchString"
+          @search="onSearch"
           size="large"
           :style="{ width: '200px' }"
         />
       </a-layout-header>
       <a-layout-content :style="{ margin: '20px' }">
-        <div
-          :style="{ padding: '20px', background: '#fff', minHeight: '360px' }"
-        >
+        <div class="layout-content">
           <router-view />
         </div>
       </a-layout-content>
@@ -51,6 +49,7 @@
 import { useRouter } from "vue-router";
 import { defineComponent, ref, h, watch, onMounted } from "vue";
 import LayoutLogo from "./LayoutLogo.vue";
+import { apiService } from "@/services/apiService";
 
 export default defineComponent({
   components: {
@@ -59,20 +58,22 @@ export default defineComponent({
   setup() {
     const router = useRouter();
     const routes = router.options.routes.filter((route) => route.meta);
-    const searchQuery = ref("");
     const selectedKeys = ref([]);
+    const searchString = ref("");
 
     const navigate = (routeName) => {
       router.push({ name: routeName });
     };
 
-    const handleSearch = () => {
-      // Perform search logic based on the searchQuery value
-      console.log("Search query:", searchQuery.value);
+    const onSearch = async (text) => {
+      console.log(text);
+      searchString.value = text;
+      if (text.length > 1) {
+        await apiService.searchStock(text).then((res) => console.log(res));
+      }
     };
 
     const renderIcon = (iconType) => {
-      console.log(h(iconType));
       return h(iconType);
     };
 
@@ -100,10 +101,18 @@ export default defineComponent({
       routes: routes,
       selectedKeys,
       navigate,
-      searchQuery,
-      handleSearch,
+      searchString,
+      onSearch,
       renderIcon,
     };
   },
 });
 </script>
+<style>
+.layout-content {
+  max-height: calc(100vh - 20px);
+  padding: "20px";
+  background: "#fff";
+  min-height: "360px";
+}
+</style>

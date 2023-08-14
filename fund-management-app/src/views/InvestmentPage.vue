@@ -1,39 +1,53 @@
 <template>
-  <div class="investment-page">
-    <h1>Investment History</h1>
+  <a-card>
+    <div class="investment-page">
+      <h1>Investment History</h1>
+      <div v-if="stocks.length < 1">
+        <a-alert
+          message="Info Text"
+          description="Your Trade list is empty."
+          type="info"
+          show-icon
 
-    <div class="scrollable-list">
-      <a-row
-        :gutter="8"
-        v-for="(stock, index) in stocks"
-        :key="index"
-        :style="getRowStyle(stock.type)"
-        class="list-item"
-      >
-        <a-col :span="2" :style="{ textTransform: 'capitalize' }">
-          {{ stock.type }}
-        </a-col>
-        <a-col :span="2">{{ stock.amount }} x</a-col>
-        <a-col :span="6">
-          <div class="item-content">
-            <a-avatar
-              v-if="!isSmallDevice"
-              :src="stock.logoUrl"
-              class="avatar"
-            />
-            <div class="name-symbol">
-              <div class="company-name">{{ stock.companyName }}</div>
-              <div class="symbol">{{ stock.symbol }}</div>
-            </div>
-          </div>
-        </a-col>
+        />
+      </div>
+      <div v-else>
+        <div class="scrollable-list">
+          <a-row
+            :gutter="8"
+            v-for="(stock, index) in stocks"
+            :key="index"
+            :style="getRowStyle(stock.type)"
+            class="list-item"
+          >
+            <a-col :span="2" :style="{ textTransform: 'capitalize' }">
+              {{ stock.type }}
+            </a-col>
+            <a-col :span="2">{{ stock.amount }} x</a-col>
+            <a-col :span="6">
+              <div class="item-content">
+                <a-avatar
+                  v-if="!isSmallDevice"
+                  :src="stock.logoUrl"
+                  class="avatar"
+                />
+                <div class="name-symbol">
+                  <div class="company-name">{{ stock.companyName }}</div>
+                  <div class="symbol">{{ stock.symbol }}</div>
+                </div>
+              </div>
+            </a-col>
 
-        <a-col :span="4">$ {{ stock.eachPrice }}</a-col>
+            <a-col :span="4">$ {{ stock.eachPrice }}</a-col>
 
-        <a-col :span="4">$ {{ stock.eachPrice * stock.amount }}</a-col>
-      </a-row>
+            <a-col :span="4">
+              $ {{ Number(stock.eachPrice * stock.amount).toFixed(2) }}
+            </a-col>
+          </a-row>
+        </div>
+      </div>
     </div>
-  </div>
+  </a-card>
 </template>
 
 <script>
@@ -72,7 +86,6 @@ export default {
 .investment-page {
   margin: 0 auto;
 }
-
 
 .list-item {
   padding: 10px;

@@ -7,4 +7,5 @@ export declare class StockService {
     createStock(createStockDTO: CreateStockDTO): Promise<StockEntity>;
     getAllStocks(): Promise<StockEntity[]>;
     getStockBySymbol(symbol: string): Promise<StockEntity>;
+    getStocks(symbol: string): Promise<StockEntity[]>;
 }

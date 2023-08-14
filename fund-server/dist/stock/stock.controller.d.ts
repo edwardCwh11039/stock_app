@@ -3,6 +3,7 @@ import { StockEntity } from './entity/stock.entity';
 export declare class StockController {
     private stockService;
     constructor(stockService: StockService);
-    getAllStocks(): Promise<StockEntity[]>;
-    getStockById(symbol: string): Promise<StockEntity>;
+    findAll(): Promise<StockEntity[]>;
+    findOne(symbol: string): Promise<StockEntity>;
+    search(query: string): Promise<StockEntity[]>;
 }

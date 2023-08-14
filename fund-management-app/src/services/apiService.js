@@ -52,6 +52,9 @@ class ApiService extends BaseApiService {
   getStock(symbol) {
     return this.get(["stock", symbol]).then(this.showMessage());
   }
+  searchStock(symbol) {
+    return this.get(["stock"], { query: symbol }).then(this.showMessage());
+  }
 }
 
 export const apiService = new ApiService();

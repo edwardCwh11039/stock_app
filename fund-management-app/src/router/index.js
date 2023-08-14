@@ -4,6 +4,8 @@ import InvestmentPage from "@/views/InvestmentPage.vue";
 import OverviewPage from "@/views/OverviewPage.vue";
 import NewsPage from "@/views/NewsPage.vue";
 import StockDetailPage from "@/views/StockDetailPage.vue";
+import LoginPage from "@/views/LoginPage.vue";
+
 import {
   AppstoreOutlined,
   FundProjectionScreenOutlined,
@@ -14,6 +16,11 @@ import {
 export const routes = [
   {
     path: "/",
+    component: LoginPage,
+    name: "Login",
+  },
+  {
+    path: "/overview",
     component: OverviewPage,
     name: "Overview",
     meta: { icon: <AppstoreOutlined />, name: "overview" },

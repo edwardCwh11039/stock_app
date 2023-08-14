@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 
 export const useStore = defineStore("store", {
   state: () => ({
+    userName: "",
     balance: 10000, // Initial balance, you can set it to whatever value you prefer
     stocks: [],
   }),
@@ -10,6 +11,10 @@ export const useStore = defineStore("store", {
     getStocks: (state) => state.stocks,
   },
   actions: {
+    login(user) {
+      this.userName = user.username;
+      this.balance = user.balance * 100;
+    },
     updateBalance(stock) {
       this.balance =
         stock.type == "buy"
@@ -19,10 +24,10 @@ export const useStore = defineStore("store", {
 
     addStock(stock) {
       this.stocks.push(stock);
-      console.log("before: " ,this.balance);
+      console.log("before: ", this.balance);
 
       this.updateBalance(stock);
-      console.log("after: " ,this.balance);
+      console.log("after: ", this.balance);
     },
 
     removeStock(stock) {
@@ -37,5 +42,4 @@ export const useStore = defineStore("store", {
       return this.stocks.some((stock) => stock.symbol === symbol);
     },
   },
-  persist: true,
 });

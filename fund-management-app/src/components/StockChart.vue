@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="isLoading">
+    <div v-if="isLoading" :style="{ textAlign: 'center' }">
       <a-spin size="large" tip="loading"></a-spin>
     </div>
     <div v-else>
@@ -11,18 +11,21 @@
 
 <script>
 import { useRoute } from "vue-router";
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import axios from "axios";
 import { Line } from "vue-chartjs";
 import "chart.js/auto";
 import { stockExampleData } from "@/store/stockDataExample";
 export default {
   components: { Line },
+
   setup(props, context) {
     const route = useRoute();
     const symbol = ref(route.params.symbol);
     const dailyStockData = ref(null);
+    const chartData = ref(null);
     const isLoading = ref(true);
+
     const fetchDailyStockData = async () => {
       try {
         const apiKey = "4L899V8QWQXTQP85";
@@ -44,7 +47,6 @@ export default {
         isLoading.value = false;
       }
     };
-    const chartData = ref(null);
     const chartOptions = {
       responsive: true,
       plugins: {
@@ -61,10 +63,6 @@ export default {
         },
       },
     };
-
-    onMounted(() => {
-      fetchDailyStockData();
-    });
 
     const formatData = (data) => {
       const chartLabels = [];
@@ -86,6 +84,7 @@ export default {
       };
       context.emit("currentPrice", chartValues[chartValues.length - 1]);
     };
+    fetchDailyStockData();
 
     return {
       chartData,

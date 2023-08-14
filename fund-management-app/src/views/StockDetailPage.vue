@@ -23,7 +23,7 @@
               <b>$ {{ currentPrice }}</b>
             </span>
             <div :class="priceChangeClass">
-              <div v-if="companyInfo.priceChange.includes('-')">
+              <div v-if="priceChangeClass == 'negative-price'">
                 <FallOutlined />{{ companyInfo.priceChange }}
               </div>
               <div v-else><RiseOutlined />{{ companyInfo.priceChange }}</div>
@@ -55,7 +55,7 @@
             block
             :disabled="getBoughtStocks() < 1"
           >
-            Sell {{ getBoughtStocks() }}
+            Sell
           </a-button>
         </a-col>
       </a-row>
@@ -66,17 +66,18 @@
       ok-text="Confirm"
       cancel-text="Cancel"
       @ok="handleModalConfirm"
+      :okButtonProps="{ isTransButtonDisabled }"
     >
       <p>Amount:</p>
       <a-slider
         v-model:value="amount"
-        :tooltip-open="true"
+        :tooltip-open="isModalVisible"
         :tip-formatter="formatter"
         @change="sliderChange"
         :max="maxSliderValue"
         :step="currentPrice"
       />
-      
+
       <p>Stock:</p>
       <a-input-number
         id="inputNumber"
@@ -130,22 +131,42 @@ export default {
     const stockToSell = ref(0);
     const amount = ref(0);
     const selectedOption = ref("");
-    const companyInfo = ref(null);
-    companyInfo.value = stocksArr.find(
-      (stock) => stock.symbol === symbol.value
-    );
-    const priceChangeClass = companyInfo.value.priceChange.includes("-")
-      ? "negative-price"
-      : "positive-price";
+    const companyInfo = ref({});
+    const priceChangeClass = ref("");
+    const getStock = async () => {
+      try {
+        let response = await apiService.getStock(symbol.value);
+        console.log(response);
+        companyInfo.value = response;
+        priceChangeClass.value = companyInfo.value.priceChange.includes("-")
+          ? "negative-price"
+          : "positive-price";
+      } catch (error) {
+        console.log("Error fetching stocks:", error);
+      }
+    };
+    getStock();
+    // companyInfo.value = stocksArr.find(
+    //   (stock) => stock.symbol === symbol.value
+    // );
+    
+    // form child (emit)
+    const getPrice = (price) => {
+      currentPrice.value = Number(price);
+    };
+
+    const capitalizeFirstLetter = (string) => {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    };
 
     const showModal = (action) => {
-      selectedOption.value = action === "buy" ? "buy" : "sell";
+      selectedOption.value = action;
       isModalVisible.value = true;
-      modalTitle.value = (action === "buy" ? "Buy" : "Sell").concat(
-        " ",
+      modalTitle.value = [
+        capitalizeFirstLetter(action),
         symbol.value,
-        " Stock"
-      );
+        "Stock",
+      ].join(" ");
     };
 
     const handleModalConfirm = () => {
@@ -164,12 +185,12 @@ export default {
       // Navigate to the "Investment" page
       router.push({ name: "Investment" });
     };
+
     const formatter = () => {
-      return `$${amount.value}`;
+      return `$ ${amount.value}`;
     };
 
     const inputChange = (value) => {
-
       stockToBuy.value = Number(value);
       let currentAmount = value * currentPrice.value;
       amount.value = currentAmount;
@@ -183,29 +204,30 @@ export default {
     const maxSliderValue = computed(() => {
       let price = currentPrice.value;
       return selectedOption.value === "buy"
-        ? Math.floor(Number(store.getBalance) / Number(currentPrice.value)) *
-            Number(price)
-        : Number(price) * Number(stockToSell);
-        
+        ? Math.floor(Number(store.getBalance) / currentPrice.value) * price
+        : Number(price * Number(getBoughtStocks()).toFixed(2));
     });
 
     const maxInputValue = computed(() => {
       return selectedOption.value === "buy"
-        ? Math.floor(Number(store.getBalance) / Number(currentPrice.value))
-        : Number(stockToSell);
+        ? Math.floor(Number(store.getBalance) / currentPrice.value)
+        : Number(getBoughtStocks()).toFixed(2);
     });
-
-    // form child (emit)
-    const getPrice = (price) => {
-      currentPrice.value = price;
-    };
 
     const hasStock = computed(() => {
       return stockToSell.value > 0;
     });
 
     const enoughMoney = computed(() => {
-      return store.getBalance >= Number(currentPrice.value);
+      return store.getBalance >= currentPrice.value;
+    });
+    const isTransButtonDisabled = computed(() => {
+      let balance = store.getBalance;
+      return selectedOption.value === "buy"
+        ? Number(stockToBuy) === 0 ||
+            Number(stockToBuy).toFixed(0) >
+              Math.floor(Number(balance) / Number(currentPrice))
+        : Number(stockToBuy) === 0 || Number(stockToBuy) > stockToSell.value;
     });
 
     const getBoughtStocks = () => {
@@ -236,13 +258,13 @@ export default {
       stockToSell.value = getBoughtStocks();
     });
 
-    onMounted(async () => {
-      try {
-        companyInfo.value = await apiService.getStock(symbol.value);
-      } catch (error) {
-        console.log("Error fetching stocks:", error);
-      }
-    });
+    // onMounted(async () => {
+    //   try {
+    //     companyInfo.value = await apiService.getStock(symbol.value);
+    //   } catch (error) {
+    //     console.log("Error fetching stocks:", error);
+    //   }
+    // });
 
     return {
       store,
@@ -265,6 +287,7 @@ export default {
       hasStock,
       enoughMoney,
       getBoughtStocks,
+      isTransButtonDisabled,
     };
   },
 };

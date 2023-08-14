@@ -32,6 +32,12 @@ let StockService = exports.StockService = class StockService {
             where: { symbol: symbol },
         });
     }
+    async getStocks(symbol) {
+        console.log(symbol);
+        return await this.stockRepository.find({
+            where: { companyName: (0, typeorm_2.Like)(`%${symbol}%`) },
+        });
+    }
 };
 exports.StockService = StockService = __decorate([
     (0, common_1.Injectable)(),

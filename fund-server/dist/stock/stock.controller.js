@@ -20,12 +20,15 @@ let StockController = exports.StockController = class StockController {
     constructor(stockService) {
         this.stockService = stockService;
     }
-    async getAllStocks() {
+    findAll() {
         return this.stockService.getAllStocks();
     }
-    async getStockById(symbol) {
-        console.log('symbol');
+    findOne(symbol) {
+        console.log(symbol);
         return this.stockService.getStockBySymbol(symbol);
+    }
+    search(query) {
+        return this.stockService.getStocks(query);
     }
 };
 __decorate([
@@ -33,14 +36,27 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
-], StockController.prototype, "getAllStocks", null);
+], StockController.prototype, "findAll", null);
 __decorate([
-    (0, common_1.Get)('/:symbol'),
+    (0, common_1.Get)(':symbol'),
     __param(0, (0, common_1.Param)('symbol')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], StockController.prototype, "getStockById", null);
+    __metadata("design:returntype", void 0)
+], StockController.prototype, "findOne", null);
+__decorate([
+    (0, swagger_1.ApiQuery)({
+        name: 'query',
+        type: 'string',
+        description: 'stock name',
+        required: false,
+    }),
+    (0, common_1.Get)(),
+    __param(0, (0, common_1.Query)('query')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], StockController.prototype, "search", null);
 exports.StockController = StockController = __decorate([
     (0, swagger_1.ApiTags)('stock'),
     (0, common_1.Controller)('stock'),
