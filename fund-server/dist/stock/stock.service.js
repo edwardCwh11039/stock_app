@@ -33,7 +33,6 @@ let StockService = exports.StockService = class StockService {
         });
     }
     async getStocks(symbol) {
-        console.log(symbol);
         return await this.stockRepository.find({
             where: { companyName: (0, typeorm_2.Like)(`%${symbol}%`) },
         });

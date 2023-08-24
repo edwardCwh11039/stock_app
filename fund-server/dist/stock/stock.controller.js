@@ -24,7 +24,6 @@ let StockController = exports.StockController = class StockController {
         return this.stockService.getAllStocks();
     }
     findOne(symbol) {
-        console.log(symbol);
         return this.stockService.getStockBySymbol(symbol);
     }
     search(query) {
